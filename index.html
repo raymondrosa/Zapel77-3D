@@ -32,7 +32,7 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 <script>
 const $=id=>document.getElementById(id),cv=$('cv'),g=cv.getContext('2d');
 const PLS={XY:[0,1,2],XZ:[0,2,1],YZ:[1,2,0]},RL=['Ux','Uy','Uz','Rx','Ry','Rz'],FL=['Fx','Fy','Fz','Mx','My','Mz'];
-const D={b:.3,h:.5,E:25,ang:0,w:0,wx:0,wy:0,kz:0,ky:0,div:4,a1:0,a2:0};
+const D={b:.3,h:.5,E:25,ang:0,wa:0,wb:0,xa:0,xb:0,ya:0,yb:0,kz:0,ky:0,div:4,a1:0,a2:0};
 let cu='SI';const UN={SI:{L:['m',1],F:['kN',1],FL:['kN·m',1],q:['kN/m',1],E:['GPa',1],k:['kN/m³',1],d:['mm',1000]},IM:{L:['ft',3.28084],F:['kip',.224809],FL:['kip·ft',.737562],q:['kip/ft',.068522],E:['ksi',145.038],k:['kip/ft³',.006366],d:['in',39.3701]}},UF=k=>k?UN[cu][k][1]:1,UL=k=>UN[cu][k][0],fmtv=v=>+v.toPrecision(6),KM={N:'F',Vy:'F',Vz:'F',T:'FL',My:'FL',Mz:'FL',Sy:'q',Sz:'q'};
 let N=[],B=[],tool='sel',sel=null,res=null,mode='model',chain=null,drag=null,ms=null,C={a:-.6,p:.45,S:40,ox:300,oy:300},dpr=devicePixelRatio||1;
 const mk=(x,y,z,r=[0,0,0,0,0,0])=>({x,y,z,r,f:[0,0,0,0,0,0]}),bk=(i,j,o={})=>({...D,i,j,...o});
@@ -63,12 +63,12 @@ function analyze(){
   K=kl(Em,Em/2.4,r.b*r.h,r.b*r.h**3/12,r.h*r.b**3/12,J,L),kz=r.kz*r.b,ky=r.ky*r.h,Rm=[ax.ex,ax.ey,ax.ez],T=Array.from({length:12},()=>Array(12).fill(0));
   if(kz||ky)GP.forEach(([x,w])=>{const h=hm(x,L),nz=[h[0],-h[1],h[2],-h[3]],iy=[1,5,7,11],iz=[2,4,8,10];for(let a=0;a<4;a++)for(let b=0;b<4;b++){K[iy[a]][iy[b]]+=ky*L*w*h[a]*h[b];K[iz[a]][iz[b]]+=kz*L*w*nz[a]*nz[b]}});
   for(let b=0;b<4;b++)for(let i=0;i<3;i++)for(let j=0;j<3;j++)T[3*b+i][3*b+j]=Rm[i][j];
-  const fx=[r.wx,r.wy,-r.w],qx=dot(fx,ax.ex),qy=dot(fx,ax.ey),qz=dot(fx,ax.ez);wF+=-r.w*L;wH[0]+=r.wx*L;wH[1]+=r.wy*L;
-  const fe=[qx*L/2,qy*L/2,qz*L/2,0,-qz*L*L/12,qy*L*L/12,qx*L/2,qy*L/2,qz*L/2,0,qz*L*L/12,-qy*L*L/12],rel=[];
+  const t0=(e.k-1)/e.m,t1=e.k/e.m,ip=(a,b,s)=>a+(b-a)*s,fa=[ip(r.xa,r.xb,t0),ip(r.ya,r.yb,t0),-ip(r.wa,r.wb,t0)],fb=[ip(r.xa,r.xb,t1),ip(r.ya,r.yb,t1),-ip(r.wa,r.wb,t1)],qxa=dot(fa,ax.ex),qxb=dot(fb,ax.ex),qya=dot(fa,ax.ey),qyb=dot(fb,ax.ey),qza=dot(fa,ax.ez),qzb=dot(fb,ax.ez);wF+=(fa[2]+fb[2])/2*L;wH[0]+=(fa[0]+fb[0])/2*L;wH[1]+=(fa[1]+fb[1])/2*L;
+  const tf=(qa,qb)=>[qa*L/2+3*(qb-qa)*L/20,qa*L*L/12+(qb-qa)*L*L/30,qa*L/2+7*(qb-qa)*L/20,-qa*L*L/12-(qb-qa)*L*L/20],Y=tf(qya,qyb),Z=tf(qza,qzb),fe=[L*(2*qxa+qxb)/6,Y[0],Z[0],0,-Z[1],Y[1],L*(qxa+2*qxb)/6,Y[2],Z[2],0,-Z[3],Y[3]],rel=[];
   if(e.k==1&&r.a1)rel.push(4,5);if(e.k==e.m&&r.a2)rel.push(10,11);
   const Kc=K.map(x=>x.slice()),fc=fe.slice();cond(Kc,fc,rel);
   const Kg=mul(tp(T),mul(Kc,T)),fg=mul(tp(T),fc.map(v=>[v])).map(x=>x[0]),dof=[...[0,1,2,3,4,5].map(k=>6*e.i+k),...[0,1,2,3,4,5].map(k=>6*e.j+k)];
-  for(let p=0;p<12;p++){F[dof[p]]+=fg[p];for(let c=0;c<12;c++)G[dof[p]][dof[c]]+=Kg[p][c]}Object.assign(e,{T,dof,Ko:K,fo:fe,Kc,fc,rel,qx,qy,qz,ky,kz})});
+  for(let p=0;p<12;p++){F[dof[p]]+=fg[p];for(let c=0;c<12;c++)G[dof[p]][dof[c]]+=Kg[p][c]}Object.assign(e,{T,dof,Ko:K,fo:fe,Kc,fc,rel,qxa,qxb,qya,qyb,qza,qzb,ky,kz})});
  N.forEach((m,i)=>m.f.forEach((v,k)=>F[6*i+k]+=v));
  const rs=Array(n).fill(0);N.forEach((m,i)=>{for(let k=0;k<6;k++)rs[6*i+k]=used.has(i)?m.r[k]:1});
  let mx=0;for(let i=0;i<n;i++)mx=Math.max(mx,G[i][i]);for(let d=0;d<n;d++)if(d%6>2&&G[d][d]<1e-9*mx)G[d][d]+=1e-9*mx;
@@ -80,10 +80,10 @@ function analyze(){
   if(rel.length){const idx=[0,1,2,3,4,5,6,7,8,9,10,11].filter(k=>!rel.includes(k)),sl=gauss(rel.map(p=>rel.map(q=>Ko[p][q])),rel.map(p=>fo[p]-idx.reduce((t,k)=>t+Ko[p][k]*ul[k],0)));rel.forEach((p,i)=>ul[p]=sl?sl[i]:0)}
   const Fl=Kc.map((row,i)=>row.reduce((t,v,j)=>t+v*ul[j],0)-fc[i]),I=[0,0,0,0];let pw,pS;
   for(let m=0;m<=12;m++){const x=m/12,s=L*x,h=L/12,Nn=hm(x,L),v=Nn[0]*ul[1]+Nn[1]*ul[5]+Nn[2]*ul[7]+Nn[3]*ul[11],w=Nn[0]*ul[2]-Nn[1]*ul[4]+Nn[2]*ul[8]-Nn[3]*ul[10],uu=ul[0]*(1-x)+ul[6]*x,
-   d=[0,1,2].map(k=>ax.ex[k]*uu+ax.ey[k]*v+ax.ez[k]*w),Sy=-e.ky*v,Sz=-e.kz*w,wy=e.qy+Sy,wz=e.qz+Sz;dmax=Math.max(dmax,Math.hypot(...d));
+   d=[0,1,2].map(k=>ax.ex[k]*uu+ax.ey[k]*v+ax.ez[k]*w),Sy=-e.ky*v,Sz=-e.kz*w,wy=e.qya+(e.qyb-e.qya)*x+Sy,wz=e.qza+(e.qzb-e.qza)*x+Sz;dmax=Math.max(dmax,Math.hypot(...d));
    if(m){const a1=I[0]+(pw[0]+wy)/2*h,b1=I[2]+(pw[1]+wz)/2*h;I[1]+=(I[0]+a1)/2*h;I[3]+=(I[2]+b1)/2*h;I[0]=a1;I[2]=b1;const sy=(pS[0]+Sy)/2*h,sz=(pS[1]+Sz)/2*h;for(let k=0;k<3;k++)soil[k]+=sy*ax.ey[k]+sz*ax.ez[k]}
    pw=[wy,wz];pS=[Sy,Sz];
-   smp[e.bi].push({P:[a.x+ax.ex[0]*s,a.y+ax.ex[1]*s,a.z+ax.ex[2]*s],d,ax,N:-(Fl[0]+e.qx*s),Vy:Fl[1]+I[0],Vz:Fl[2]+I[2],T:-Fl[3],My:Fl[4]+Fl[2]*s+I[3],Mz:-Fl[5]+Fl[1]*s+I[1],Sy,Sz})}});
+   smp[e.bi].push({P:[a.x+ax.ex[0]*s,a.y+ax.ex[1]*s,a.z+ax.ex[2]*s],d,ax,N:-(Fl[0]+e.qxa*s+(e.qxb-e.qxa)*s*s/(2*L)),Vy:Fl[1]+I[0],Vz:Fl[2]+I[2],T:-Fl[3],My:Fl[4]+Fl[2]*s+I[3],Mz:-Fl[5]+Fl[1]*s+I[1],Sy,Sz})}});
  const ap=[wH[0],wH[1],wF];N.forEach(m=>{for(let k=0;k<3;k++)ap[k]+=m.f[k]});const sr=[0,1,2].map(k=>N.reduce((s,_,i)=>s+R[6*i+k],0)),ext={};
  ['N','Vy','Vz','T','My','Mz','Sy','Sz'].forEach(k=>ext[k]=Math.max(1e-12,...smp.flat().map(q=>Math.abs(q[k]))));
  return{ext,u,R,smp,dmax,resid:[0,1,2].map(k=>ap[k]+sr[k]+soil[k]),ap}}
@@ -110,10 +110,10 @@ function draw(){
  g.strokeStyle=Cc('--g');g.beginPath();const P3=(a,b)=>{const p=[0,0,0];p[k1]=a;p[k2]=b;p[k3]=c;return proj(...p)};
  for(let a=a0;a<=a1;a+=stp){g.moveTo(...P3(a,b0));g.lineTo(...P3(a,b1))}for(let b=b0;b<=b1;b+=stp){g.moveTo(...P3(a0,b));g.lineTo(...P3(a1,b))}g.stroke();
  const R=mode=='model'?null:res;
+ const mxl=Math.max(1e-9,...B.flatMap(q=>[q.wa,q.wb,q.xa,q.xb,q.ya,q.yb].map(Math.abs))),ld=(a,z,va,vb,dv)=>{const pts=[];for(let k=0;k<=5;k++){const t=k/5,v=va+(vb-va)*t,l=Math.max(6,Math.abs(v)/mxl*34)*Math.sign(va+vb)/C.S,x=a.x+(z.x-a.x)*t,y=a.y+(z.y-a.y)*t,zz=a.z+(z.z-a.z)*t,p=proj(x,y,zz),q=proj(x-dv[0]*l,y-dv[1]*l,zz-dv[2]*l);pts.push(q);if(Math.abs(v)>1e-9)arrow(q[0],q[1],p[0],p[1])}g.beginPath();pts.forEach((q,i)=>i?g.lineTo(...q):g.moveTo(...q));g.stroke()};
  B.forEach((r,bi)=>{const a=N[r.i],z=N[r.j];g.strokeStyle=sel&&sel.t=='b'&&sel.i==bi?ac:(R?mt:fg);g.lineWidth=R?1:3;g.beginPath();g.moveTo(...proj(a.x,a.y,a.z));g.lineTo(...proj(z.x,z.y,z.z));g.stroke();
   const m=proj((a.x+z.x)/2,(a.y+z.y)/2,(a.z+z.z)/2);g.fillStyle=mt;g.fillText('B'+(bi+1),m[0]+4,m[1]-6);
-  if(!R&&r.w){g.strokeStyle='#d97706';g.lineWidth=1;for(let k=0;k<=5;k++){const t=k/5,x=a.x+(z.x-a.x)*t,y=a.y+(z.y-a.y)*t,zz=a.z+(z.z-a.z)*t,p=proj(x,y,zz),q=proj(x,y,zz+Math.sign(r.w)*34/C.S);arrow(q[0],q[1],p[0],p[1])}}
-  if(!R&&(r.wx||r.wy)){g.strokeStyle='#d97706';g.lineWidth=1;const dd=[Math.sign(r.wx)*34/C.S,Math.sign(r.wy)*34/C.S];for(let k=0;k<=5;k++){const t=k/5,x=a.x+(z.x-a.x)*t,y=a.y+(z.y-a.y)*t,zz=a.z+(z.z-a.z)*t,p=proj(x,y,zz),q=proj(x-dd[0],y-dd[1],zz);arrow(q[0],q[1],p[0],p[1])}}});
+  if(!R){g.strokeStyle='#d97706';g.lineWidth=1;if(r.wa||r.wb)ld(a,z,r.wa,r.wb,[0,0,-1]);if(r.xa||r.xb)ld(a,z,r.xa,r.xb,[1,0,0]);if(r.ya||r.yb)ld(a,z,r.ya,r.yb,[0,1,0])}});
  N.forEach((n,i)=>{const p=proj(n.x,n.y,n.z);g.fillStyle=sel&&sel.t=='n'&&sel.i==i?ac:fg;g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();g.fillStyle=mt;g.fillText(i+1,p[0]+6,p[1]+13);
   if(n.r.some(v=>v)){g.fillStyle='#16a34a';g.fillText(n.r.map((v,k)=>v?RL[k]:'').filter(Boolean).join(' '),p[0]-12,p[1]+26);g.strokeStyle='#16a34a';g.beginPath();g.moveTo(p[0],p[1]+5);g.lineTo(p[0]-7,p[1]+17);g.lineTo(p[0]+7,p[1]+17);g.closePath();g.stroke()}
   if(!R){g.strokeStyle=g.fillStyle='#dc2626';[0,1,2].forEach(k=>{const v=n.f[k];if(v){const d=[0,0,0];d[k]=Math.sign(v)*38/C.S;const q=proj(n.x-d[0],n.y-d[1],n.z-d[2]);arrow(q[0],q[1],p[0],p[1])}});
@@ -137,7 +137,7 @@ function form(){const p=$('prop');if(!sel){p.innerHTML='<p class="m">Elige el pl
  p.innerHTML=nd?'<b>Nodo '+(sel.i+1)+'</b>'+[['x','X'],['y','Y'],['z','Z']].map(([k,l])=>num(k,l,null,'L')).join('')+
   '<label>Apoyo<select id="pre"><option value="">Elegir…</option><option value="0">Libre</option><option value="1">Empotrado</option><option value="2">Articulado</option><option value="3">Rodillo (Uz)</option></select></label><div>'+
   RL.map((l,k)=>'<label class="ck"><input type="checkbox" data-k="r" data-i="'+k+'"'+(o.r[k]?' checked':'')+'>'+l+'</label>').join('')+'</div>'+FL.map((l,k)=>num('f',l,k,k<3?'F':'FL')).join('')
-  :'<b>Barra '+(sel.i+1)+'</b> <span class="m">(N'+(o.i+1)+'→N'+(o.j+1)+', L = '+(axes(o).L*UF('L')).toFixed(3)+' '+UL('L')+')</span>'+[['b','Ancho b','L'],['h','Canto h (eje local z)','L'],['E','E','E'],['ang','Giro de la sección (°)',''],['w','w (↓ gravedad +)','q'],['wx','wx lateral (→ +X)','q'],['wy','wy lateral (→ +Y)','q'],['kz','ks vertical (local z)','k'],['ky','ks lateral (local y)','k'],['div','Subdivisiones','']].map(([k,l,kd])=>num(k,l,null,kd)).join('')+'<label class="ck"><input type="checkbox" data-k="a1"'+(o.a1?' checked':'')+'>Articulación inicio</label><label class="ck"><input type="checkbox" data-k="a2"'+(o.a2?' checked':'')+'>Articulación final</label>'+'<button id="ap" style="margin-top:6px;width:100%">Aplicar sección y E a todas</button>';
+  :'<b>Barra '+(sel.i+1)+'</b> <span class="m">(N'+(o.i+1)+'→N'+(o.j+1)+', L = '+(axes(o).L*UF('L')).toFixed(3)+' '+UL('L')+')</span>'+[['b','Ancho b','L'],['h','Canto h (eje local z)','L'],['E','E','E'],['ang','Giro de la sección (°)',''],['wa','w inicio (↓ gravedad +)','q'],['wb','w final (↓ gravedad +)','q'],['xa','wx inicio (→ +X)','q'],['xb','wx final (→ +X)','q'],['ya','wy inicio (→ +Y)','q'],['yb','wy final (→ +Y)','q'],['kz','ks vertical (local z)','k'],['ky','ks lateral (local y)','k'],['div','Subdivisiones','']].map(([k,l,kd])=>num(k,l,null,kd)).join('')+'<label class="ck"><input type="checkbox" data-k="a1"'+(o.a1?' checked':'')+'>Articulación inicio</label><label class="ck"><input type="checkbox" data-k="a2"'+(o.a2?' checked':'')+'>Articulación final</label>'+'<button id="ap" style="margin-top:6px;width:100%">Aplicar sección y E a todas</button>';
  p.querySelectorAll('[data-k]').forEach(i=>i.onchange=()=>{const k=i.dataset.k,v=i.type=='checkbox'?+i.checked:+i.value/UF(i.dataset.d);if(i.dataset.i!=null)o[k][+i.dataset.i]=v;else o[k]=v;res=null;$('out').innerHTML='';setM('model')});
  const pre=$('pre');if(pre)pre.onchange=()=>{if(pre.value==='')return;o.r=[[0,0,0,0,0,0],[1,1,1,1,1,1],[1,1,1,0,0,0],[0,0,1,0,0,0]][+pre.value];res=null;form();draw()};
  const ap=$('ap');if(ap)ap.onclick=()=>{B.forEach(r=>{r.b=o.b;r.h=o.h;r.E=o.E});res=null;setM('model')}}
@@ -157,9 +157,9 @@ document.querySelectorAll('#md button').forEach(b=>b.onclick=()=>{const k=b.data
 $('v_iso').onclick=()=>view(-.6,.45);$('v_xy').onclick=()=>view(0,Math.PI/2,'XY');$('v_xz').onclick=()=>view(0,0,'XZ');$('v_yz').onclick=()=>view(-Math.PI/2,0,'YZ');
 ['pl','lv','gs','df'].forEach(i=>$(i).onchange=draw);
 $('un').onchange=()=>{cu=$('un').value;$('gs').value=cu=='SI'?.5:1;$('lv').value=0;document.querySelectorAll('.gu').forEach(s=>s.textContent=UL('L'));form();if(res){const m=mode;run();setM(m)}else draw()};
-$('b_ex2').onclick=()=>{load([mk(0,0,0,[1,1,0,1,0,0]),mk(5,0,0),mk(10,0,0,[0,1,0,1,0,0])],[bk(0,1,{b:1,h:.6,w:50,kz:15000,div:6}),bk(1,2,{b:1,h:.6,w:50,kz:15000,div:6})]);N[1].f[2]=-300;form();draw()};
+$('b_ex2').onclick=()=>{load([mk(0,0,0,[1,1,0,1,0,0]),mk(5,0,0),mk(10,0,0,[0,1,0,1,0,0])],[bk(0,1,{b:1,h:.6,wa:50,wb:50,kz:15000,div:6}),bk(1,2,{b:1,h:.6,wa:50,wb:50,kz:15000,div:6})]);N[1].f[2]=-300;form();draw()};
 $('b_ex').onclick=()=>{const F=[1,1,1,1,1,1];load([mk(0,0,0,F),mk(5,0,0,F),mk(5,4,0,F),mk(0,4,0,F),mk(0,0,3),mk(5,0,3),mk(5,4,3),mk(0,4,3)],
- [bk(0,4,{b:.3,h:.3}),bk(1,5,{b:.3,h:.3}),bk(2,6,{b:.3,h:.3}),bk(3,7,{b:.3,h:.3}),bk(4,5,{b:.25,h:.5,w:15}),bk(5,6,{b:.25,h:.5,w:15}),bk(6,7,{b:.25,h:.5,w:15}),bk(7,4,{b:.25,h:.5,w:15})]);N[6].f[0]=10;N[6].f[1]=5;form();draw()};
+ [bk(0,4,{b:.3,h:.3}),bk(1,5,{b:.3,h:.3}),bk(2,6,{b:.3,h:.3}),bk(3,7,{b:.3,h:.3}),bk(4,5,{b:.25,h:.5,wa:15,wb:15}),bk(5,6,{b:.25,h:.5,wa:15,wb:15}),bk(6,7,{b:.25,h:.5,wa:15,wb:15}),bk(7,4,{b:.25,h:.5,wa:15,wb:15})]);N[6].f[0]=10;N[6].f[1]=5;form();draw()};
 const PT=new Map();let pin=null;
 function zoomAt(px,py,k){C.ox=px-(px-C.ox)*k;C.oy=py-(py-C.oy)*k;C.S*=k}
 const pc=()=>{const [a,b]=[...PT.values()];return[(a[0]+b[0])/2,(a[1]+b[1])/2,Math.hypot(a[0]-b[0],a[1]-b[1])]};
