@@ -47,6 +47,13 @@ cd zapel-3d
 - **Dibujo en planos de trabajo:** se elige el plano (XY, XZ o YZ) y su nivel, y las barras se dibujan sobre él, con ajuste a nodos y a la cuadrícula.
 - **Vista 3D:** gira, desplaza y haz zoom libremente. Vistas rápidas: Iso, Planta, Frente y Lateral, con el triedro de ejes en la esquina.
 - **Unidades:** **SI (kN · m)** e **Imperial (kip · ft)**, intercambiables en cualquier momento.
+- **Secciones transversales** de hormigón, acero o forma irregular:
+  - hormigón: rectangular, viga T y circular maciza;
+  - acero: perfil I, tubo rectangular y tubo circular, con una lista de perfiles predefinidos (W12×26 a W24×76 e IPE 200, 300 y 400);
+  - irregular: se escriben los vértices (x = ancho, y = canto) y el programa calcula el área, las inercias Iy e Iz y la constante de torsión J.
+- **Materiales:** hormigón (con f’c, y E = 4.7·√f’c en GPa), acero (E = 200 GPa) u otro. El módulo E siempre se puede corregir a mano.
+- **Ver sección:** dibuja cada barra como un prisma 3D con su perfil real a escala, en la vista de modelo.
+- **Guardar y abrir** el modelo en tu computadora, en un archivo `.json`.
 - **Apoyos:** las seis restricciones por nodo (Ux, Uy, Uz, Rx, Ry, Rz), con atajos para empotrado, articulado y rodillo.
 - **Cargas nodales:** Fx, Fy, Fz, Mx, My y Mz.
 - **Cargas distribuidas por barra**, con valor al inicio y al final:
@@ -68,9 +75,11 @@ cd zapel-3d
 2. Pulsa **Dibujar barra** y haz clic en cada nodo. Termina con clic derecho o `Esc`.
 3. Con **Seleccionar**, elige un nodo o una barra y edítalos en el panel derecho:
    - nodo: coordenadas, apoyo y cargas;
-   - barra: ancho `b`, canto `h`, módulo `E`, giro de la sección, cargas, `ks`, subdivisiones y articulaciones.
+   - barra: material, tipo de sección y dimensiones, módulo `E`, giro de la sección, cargas, `ks`, subdivisiones y articulaciones. Debajo de la sección aparecen A, Iy, Iz, J, el canto y el ancho.
 4. Pulsa **▶ Calcular** y alterna entre *Deformada* y los diagramas **N, Vy, Vz, T, My, Mz** y *Suelo*.
 5. Pulsa **▶ Animar** para ver la deformada en movimiento.
+6. Activa o desactiva **Ver sección** para mostrar o no la forma de la sección en cada barra.
+7. Usa **💾 Guardar** y **📂 Abrir** para conservar tu modelo.
 
 **Mover la vista:**
 
@@ -82,6 +91,14 @@ cd zapel-3d
 
 El botón **Encuadrar** ajusta la vista al modelo. Hay dos ejemplos cargados: un pórtico espacial y una viga sobre suelo.
 
+## Guardar y abrir modelos
+
+- **💾 Guardar** descarga el archivo `zapel-3d-modelo.json` con todo el modelo: nodos, apoyos, cargas, barras, secciones, materiales, suelo, articulaciones y unidades.
+- **📂 Abrir** carga un archivo guardado, restaura las unidades y recalcula.
+- Los resultados no se guardan, porque se recalculan al abrir. Tampoco se guarda la posición de la vista.
+- Cada programa solo abre sus propios archivos: un `.json` de ZAPEL Frame no se puede abrir en ZAPEL 3D y aparece un aviso.
+- La descarga y la apertura funcionan al usar el programa desde GitHub Pages o como archivo local. Algunos entornos de vista previa bloquean la descarga de archivos.
+
 ## Convenciones
 
 | Magnitud | Convención |
@@ -92,7 +109,7 @@ El botón **Encuadrar** ajusta la vista al modelo. Hay dos ejemplos cargados: un
 | Carga `w` | Positiva hacia abajo (gravedad), por unidad de longitud de la barra |
 | Cargas `wx`, `wy` | Positivas hacia +X y hacia +Y, por unidad de longitud de la barra |
 | Eje local x | Del nodo inicial al nodo final de la barra |
-| Eje local z | Vertical en las barras horizontales; el canto `h` se mide en esta dirección |
+| Eje local z | Vertical en las barras horizontales; el canto de la sección se mide en esta dirección y el ancho, en el eje local y |
 | Giro de la sección | Ángulo en grados alrededor del eje de la barra |
 | Axial | Positivo en tracción |
 | Momentos | Se dibujan del lado de la tracción |
@@ -101,7 +118,8 @@ El botón **Encuadrar** ajusta la vista al modelo. Hay dos ejemplos cargados: un
 ## Limitaciones
 
 - Análisis lineal elástico, sin efectos de segundo orden.
-- Sección rectangular (`b × h`) de propiedades constantes en cada barra. El módulo de corte se toma como `G = E / 2.4` y la constante de torsión se calcula con una fórmula aproximada para sección rectangular.
+- Sección de propiedades constantes en cada barra. Los perfiles de acero se calculan con dimensiones nominales y sin los radios de acuerdo, por lo que el área y las inercias salen entre 3 y 4 % por debajo de las tablas del fabricante.
+- El módulo de corte se toma como `G = E / 2.4`. La constante de torsión J se calcula con fórmulas aproximadas (secciones macizas, de paredes delgadas y cerradas), y en perfiles I sale por debajo del valor de tabla (en la IPE 300, 15.0 cm⁴ frente a 20.1 cm⁴). Afecta solo a la torsión.
 - El módulo de balasto `ks` es constante en cada barra.
 - Las articulaciones liberan solo el momento flector; la torsión se transmite.
 - No incluye losas, muros ni elementos de placa, ni lectura de archivos `.DAT` de ZAPEL, resortes nodales ni asentamientos impuestos.
