@@ -20,7 +20,7 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 @media(max-width:760px){#mn{flex-direction:column}#pn{width:auto;max-height:40%;border-left:0;border-top:1px solid var(--bd)}}
 </style></head><body>
 <div id="tb">
-<button id="t_sel" class="on">Seleccionar</button><button id="t_bar">Dibujar barra</button><button id="b_del">Eliminar</button><button id="b_clr">Limpiar</button>
+<button id="t_sel" class="on">Seleccionar</button><button id="t_bar">Dibujar barra</button><button id="b_del">Eliminar</button><button id="b_clr">Limpiar</button><button id="b_save">💾 Guardar</button><button id="b_open">📂 Abrir</button><input type="file" id="fo" accept=".json,application/json" style="display:none">
 <span class="sp"></span><label>Plano <select id="pl"><option>XY</option><option>XZ</option><option>YZ</option></select></label>
 <select id="un"><option value="SI">kN · m (SI)</option><option value="IM">kip · ft (Imperial)</option></select><label>Nivel <input id="lv" type="number" value="0" step="0.5" style="width:60px"> <span class="gu">m</span></label><label>Malla <input id="gs" type="number" value="0.5" step="0.1" min="0.05" style="width:55px"> <span class="gu">m</span></label>
 <span class="sp"></span><label><input type="checkbox" id="vs" checked> Ver sección</label><button id="v_iso">Iso</button><button id="v_xy">Planta</button><button id="v_xz">Frente</button><button id="v_yz">Lateral</button><button id="b_fit">Encuadrar</button><button id="zi">＋</button><button id="zo">－</button>
@@ -191,6 +191,9 @@ $('md').innerHTML=[['model','Modelo'],['def','Deformada'],['N','N'],['Vy','Vy'],
 document.querySelectorAll('#md button').forEach(b=>b.onclick=()=>{const k=b.dataset.m;if(k!='model'&&!res)run();if(res||k=='model')setM(k)});
 $('v_iso').onclick=()=>view(-.6,.45);$('v_xy').onclick=()=>view(0,Math.PI/2,'XY');$('v_xz').onclick=()=>view(0,0,'XZ');$('v_yz').onclick=()=>view(-Math.PI/2,0,'YZ');
 ['pl','lv','gs','df'].forEach(i=>$(i).onchange=draw);$('vs').onchange=draw;
+function saveModel(){const d={app:'zapel-3d',v:1,units:cu,N,B},blob=new Blob([JSON.stringify(d,null,1)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='zapel-3d-modelo.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function openModel(f){const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.app!='zapel-3d'||!Array.isArray(d.N)||!Array.isArray(d.B))throw 0;const a6=v=>Array.from({length:6},(_,k)=>+(v&&v[k])||0),n=d.N.map(q=>({x:+q.x||0,y:+q.y||0,z:+q.z||0,r:a6(q.r),f:a6(q.f)})),b=d.B.map(q=>({...D,...q})).filter(q=>n[q.i]&&n[q.j]);cu=d.units=='IM'?'IM':'SI';$('un').value=cu;$('gs').value=cu=='SI'?.5:1;$('lv').value=0;document.querySelectorAll('.gu').forEach(s=>s.textContent=UL('L'));load(n,b);if(b.length)run()}catch(e){$('out').innerHTML='<span class="er">El archivo no es un modelo válido de ZAPEL 3D.</span>'}};rd.readAsText(f)}
+$('b_save').onclick=saveModel;$('b_open').onclick=()=>$('fo').click();$('fo').onchange=e=>{const f=e.target.files[0];if(f)openModel(f);e.target.value=''};
 $('un').onchange=()=>{cu=$('un').value;$('gs').value=cu=='SI'?.5:1;$('lv').value=0;document.querySelectorAll('.gu').forEach(s=>s.textContent=UL('L'));form();if(res){const m=mode;run();setM(m)}else draw()};
 $('b_ex2').onclick=()=>{load([mk(0,0,0,[1,1,0,1,0,0]),mk(5,0,0),mk(10,0,0,[0,1,0,1,0,0])],[bk(0,1,{b:1,h:.6,wa:50,wb:50,kz:15000,div:6}),bk(1,2,{b:1,h:.6,wa:50,wb:50,kz:15000,div:6})]);N[1].f[2]=-300;form();draw()};
 $('b_ex').onclick=()=>{const F=[1,1,1,1,1,1];load([mk(0,0,0,F),mk(5,0,0,F),mk(5,4,0,F),mk(0,4,0,F),mk(0,0,3),mk(5,0,3),mk(5,4,3),mk(0,4,3)],
